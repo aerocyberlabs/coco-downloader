@@ -175,7 +175,8 @@ jobs:
         shell: bash
         run: |
           pushd dist
-          7z a -tzip ../${APP_SLUG}-windows.zip "${APP_SLUG}" >/dev/null
+          # Use PowerShell Compress-Archive to avoid 7z dependency
+          pwsh -NoLogo -NoProfile -Command "Compress-Archive -Path '${APP_SLUG}' -DestinationPath '../${APP_SLUG}-windows.zip' -Force"
           popd
           ls -la installer-output || true
 
@@ -199,7 +200,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Attach to GitHub Release (on tag)
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: softprops/action-gh-release@v2
         with:
           files: |
@@ -207,5 +208,33 @@ jobs:
             installer-output/${{ steps.meta.outputs.app_slug }}-Setup-x64.exe
             ${{ steps.meta.outputs.app_slug }}-linux.tar.gz
             ${{ steps.meta.outputs.app_slug }}-mac-*.pkg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish Release Assets
+    needs: build
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List downloaded artifacts
+        run: |
+          ls -la artifacts || true
+          find artifacts -maxdepth 2 -type f -print
+
+      - name: Attach all artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*.zip
+            artifacts/**/*.tar.gz
+            artifacts/**/*.pkg
+            artifacts/**/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
