@@ -32,8 +32,8 @@ Compression=lzma
 SolidCompression=yes
 SetupLogging=yes
 WizardStyle=modern
-SignedUninstaller=yes
-SignTool=ms
+SignedUninstaller=no
+
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -42,8 +42,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
 
 [Files]
-; Sign the main executable inside the installer
-Source: "dist\{#MyAppSlug}\{#MyAppSlug}.exe"; DestDir: "{app}"; Flags: ignoreversion; SignTool=ms
+; Main executable (unsigned by default)
+Source: "dist\{#MyAppSlug}\{#MyAppSlug}.exe"; DestDir: "{app}"; Flags: ignoreversion; 
 ; Include the rest of the files
 Source: "dist\{#MyAppSlug}\*"; Excludes: "{#MyAppSlug}.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
@@ -54,8 +54,8 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
-[SignTool]
-; Uses environment variables set by CI to locate PFX and password
+; [SignTool]
+; Signing disabled for CI until certs available
 #define CodeSignPfx GetEnv("WINDOWS_CERT_PFX_PATH")
 #define CodeSignPass GetEnv("WINDOWS_CERT_PASSWORD")
 #define TimeStampUrl GetEnv("WINDOWS_TIMESTAMP_URL")

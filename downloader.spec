@@ -38,11 +38,22 @@ pyz = PYZ(analysis.pure, analysis.zipped_data, cipher=block_cipher)
 # Platform-specific packaging: app bundle on macOS, folder on others
 app_name = os.environ.get('APP_NAME', 'Coco Downloader')
 exe_slug = os.environ.get('APP_SLUG', 'coco-downloader')
+
+# Build EXE first for all platforms
+exe = EXE(pyz,
+          analysis.scripts,
+          [],
+          exclude_binaries=True,
+          name=exe_slug,
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          console=False)
+
 if sys.platform == 'darwin':
     bundle_id = os.environ.get('BUNDLE_ID', 'com.acl.downloader')
-    app = BUNDLE(pyz,
-                 analysis.scripts,
-                 [],
+    app = BUNDLE(exe,
                  name=f'{app_name}.app',
                  icon=None,
                  bundle_identifier=bundle_id,
@@ -56,16 +67,6 @@ if sys.platform == 'darwin':
                    upx=True,
                    name=exe_slug)
 else:
-    exe = EXE(pyz,
-              analysis.scripts,
-              [],
-              exclude_binaries=True,
-              name=exe_slug,
-              debug=False,
-              bootloader_ignore_signals=False,
-              strip=False,
-              upx=True,
-              console=False)
     coll = COLLECT(exe,
                    analysis.binaries,
                    analysis.zipfiles,
