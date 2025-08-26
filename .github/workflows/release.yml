@@ -125,6 +125,7 @@ jobs:
             if (-not $env:WINDOWS_TIMESTAMP_URL) { $env:WINDOWS_TIMESTAMP_URL = 'https://timestamp.digicert.com' }
           }
           $iscc = Join-Path "${env:ProgramFiles(x86)}" 'Inno Setup 6\iscc.exe'
+          Write-Host "ISCC defines => Name: '$($env:APP_NAME)' Slug: '$($env:APP_SLUG)' Version: '$($env:APP_VERSION)'"
           & $iscc /Qp "/DMyAppName=$($env:APP_NAME)" "/DMyAppSlug=$($env:APP_SLUG)" "/DMyAppVersion=$($env:APP_VERSION)" installer.iss
 
       # macOS: codesign .app (if signing secrets provided)
