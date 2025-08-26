@@ -125,11 +125,7 @@ jobs:
             if (-not $env:WINDOWS_TIMESTAMP_URL) { $env:WINDOWS_TIMESTAMP_URL = 'https://timestamp.digicert.com' }
           }
           $iscc = Join-Path "${env:ProgramFiles(x86)}" 'Inno Setup 6\iscc.exe'
-          & $iscc /Qp \
-            "/DMyAppName=$($env:APP_NAME)" \
-            "/DMyAppSlug=$($env:APP_SLUG)" \
-            "/DMyAppVersion=$($env:APP_VERSION)" \
-            installer.iss
+          & $iscc /Qp "/DMyAppName=$($env:APP_NAME)" "/DMyAppSlug=$($env:APP_SLUG)" "/DMyAppVersion=$($env:APP_VERSION)" installer.iss
 
       # macOS: codesign .app (if signing secrets provided)
       - name: Import Apple signing certificates
@@ -142,7 +138,15 @@ jobs:
       - name: Codesign app bundle
         if: ${{ runner.os == 'macOS' && env.MACOS_CERT_P12_BASE64 != '' && env.MACOS_SIGN_IDENTITY != '' }}
         run: |
-          APP_PATH="dist/${APP_SLUG}/${APP_NAME}.app"
+          if [ -d "dist/${APP_NAME}.app" ]; then
+            APP_PATH="dist/${APP_NAME}.app"
+          elif [ -d "dist/${APP_SLUG}/${APP_NAME}.app" ]; then
+            APP_PATH="dist/${APP_SLUG}/${APP_NAME}.app"
+          else
+            echo "App not found in expected locations" >&2
+            ls -la dist || true
+            exit 1
+          fi
           echo "Signing $APP_PATH"
           codesign --deep --force --options runtime --sign "${{ env.MACOS_SIGN_IDENTITY }}" "$APP_PATH"
           codesign --verify --verbose=2 "$APP_PATH"
@@ -153,10 +157,17 @@ jobs:
           MACOS_INSTALLER_IDENTITY: ${{ env.MACOS_INSTALLER_IDENTITY }}
         run: |
           set -euo pipefail
-          APP_PATH="dist/${APP_SLUG}/${APP_NAME}.app"
+          if [ -d "dist/${APP_NAME}.app" ]; then
+            APP_PATH="dist/${APP_NAME}.app"
+          elif [ -d "dist/${APP_SLUG}/${APP_NAME}.app" ]; then
+            APP_PATH="dist/${APP_SLUG}/${APP_NAME}.app"
+          else
+            echo "App not found in expected locations" >&2
+            ls -la dist || true
+            exit 1
+          fi
           ARCH=$(uname -m)
           PKG_NAME="${APP_SLUG}-mac-${ARCH}.pkg"
-          test -d "${APP_PATH}" || (echo "App not found at ${APP_PATH}" && ls -la dist && exit 1)
           mkdir -p pkgroot/Applications
           cp -R "$APP_PATH" pkgroot/Applications/
           if [ -f BUNDLE_ID ]; then IDENTIFIER=$(cat BUNDLE_ID); else IDENTIFIER="com.acl.downloader"; fi
