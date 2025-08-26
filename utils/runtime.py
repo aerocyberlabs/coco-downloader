@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import os
-import sys
 import stat
+import sys
 
 
 def _is_executable(path: str) -> bool:
@@ -19,7 +20,7 @@ def resolve_bundled_aria2() -> str | None:
     """
     bases: list[str] = []
     try:
-        meipass = getattr(sys, '_MEIPASS', None)
+        meipass = getattr(sys, "_MEIPASS", None)
         if meipass:
             bases.append(str(meipass))
     except Exception:
@@ -30,16 +31,16 @@ def resolve_bundled_aria2() -> str | None:
         pass
     bases.append(os.getcwd())
 
-    is_win = sys.platform.startswith('win')
-    is_mac = sys.platform == 'darwin'
-    name = 'aria2c.exe' if is_win else 'aria2c'
-    subdirs = ['bin']
+    is_win = sys.platform.startswith("win")
+    is_mac = sys.platform == "darwin"
+    name = "aria2c.exe" if is_win else "aria2c"
+    subdirs = ["bin"]
     if is_win:
-        subdirs += ['bin\\windows']
+        subdirs += ["bin\\windows"]
     elif is_mac:
-        subdirs += ['bin/macos']
+        subdirs += ["bin/macos"]
     else:
-        subdirs += ['bin/linux']
+        subdirs += ["bin/linux"]
 
     for base in bases:
         for sd in subdirs:
@@ -53,4 +54,3 @@ def resolve_bundled_aria2() -> str | None:
                         pass
                 return cand
     return None
-

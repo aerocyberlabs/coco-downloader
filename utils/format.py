@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 def human_size(num: int) -> str:
     step = 1024.0
     units = ["B", "KiB", "MiB", "GiB", "TiB"]
@@ -36,4 +37,3 @@ def format_speed(bps: int) -> str:
     if i == 0:
         return f"{int(v)} {units[i]}"
     return f"{v:.1f} {units[i]}"
-

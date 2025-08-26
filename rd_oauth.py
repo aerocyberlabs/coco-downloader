@@ -1,12 +1,15 @@
 import time
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 import requests
 
 OAUTH_BASE = "https://api.real-debrid.com/oauth/v2"
 PUBLIC_CLIENT_ID = "X245A4XAIBGVM"  # per RD docs for opensource apps
 
 
-def device_code(new_credentials: bool = True, session: Optional[requests.Session] = None) -> Dict[str, Any]:
+def device_code(
+    new_credentials: bool = True, session: Optional[requests.Session] = None
+) -> Dict[str, Any]:
     s = session or requests.Session()
     params = {"client_id": PUBLIC_CLIENT_ID}
     if new_credentials:
@@ -16,7 +19,12 @@ def device_code(new_credentials: bool = True, session: Optional[requests.Session
     return r.json()
 
 
-def poll_credentials(device_code: str, interval: int = 5, timeout_sec: int = 300, session: Optional[requests.Session] = None) -> Dict[str, Any]:
+def poll_credentials(
+    device_code: str,
+    interval: int = 5,
+    timeout_sec: int = 300,
+    session: Optional[requests.Session] = None,
+) -> Dict[str, Any]:
     s = session or requests.Session()
     params = {"client_id": PUBLIC_CLIENT_ID, "code": device_code}
     deadline = time.time() + max(5, timeout_sec)
@@ -30,7 +38,9 @@ def poll_credentials(device_code: str, interval: int = 5, timeout_sec: int = 300
     raise RuntimeError(f"Timeout waiting for credentials: {last_err}")
 
 
-def exchange_token(client_id: str, client_secret: str, device_code: str, session: Optional[requests.Session] = None) -> Dict[str, Any]:
+def exchange_token(
+    client_id: str, client_secret: str, device_code: str, session: Optional[requests.Session] = None
+) -> Dict[str, Any]:
     s = session or requests.Session()
     data = {
         "client_id": client_id,
@@ -43,7 +53,12 @@ def exchange_token(client_id: str, client_secret: str, device_code: str, session
     return r.json()
 
 
-def refresh_access_token(client_id: str, client_secret: str, refresh_token: str, session: Optional[requests.Session] = None) -> Dict[str, Any]:
+def refresh_access_token(
+    client_id: str,
+    client_secret: str,
+    refresh_token: str,
+    session: Optional[requests.Session] = None,
+) -> Dict[str, Any]:
     s = session or requests.Session()
     data = {
         "client_id": client_id,
@@ -54,4 +69,3 @@ def refresh_access_token(client_id: str, client_secret: str, refresh_token: str,
     r = s.post(f"{OAUTH_BASE}/token", data=data, timeout=20)
     r.raise_for_status()
     return r.json()
-

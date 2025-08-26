@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import os
 
 
@@ -19,4 +20,3 @@ def size_matches(path: str, size: int) -> bool:
         return int(st.st_size) == int(size)
     except Exception:
         return False
-

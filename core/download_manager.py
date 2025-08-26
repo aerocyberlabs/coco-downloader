@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 import os
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 
 from utils import categories as cat
 from utils import urltools as utools
-from urllib.parse import urlparse
 
 
 class DownloadManager:
@@ -23,7 +24,11 @@ class DownloadManager:
     def is_excluded(self, name: str) -> bool:
         ext = cat.ext_from_name(name)
         excluded = set(
-            [e.lower().lstrip(".") for e in (self.cfg.get("exclude_ext") or []) if isinstance(e, str)]
+            [
+                e.lower().lstrip(".")
+                for e in (self.cfg.get("exclude_ext") or [])
+                if isinstance(e, str)
+            ]
         )
         return bool(ext and ext in excluded)
 
@@ -90,7 +95,14 @@ class DownloadManager:
             except Exception:
                 pass
             ext = cat.ext_from_name(fname)
-            return {"ok": True, "link": link, "filename": fname, "filesize": fsize, "type": ext, "host": host}
+            return {
+                "ok": True,
+                "link": link,
+                "filename": fname,
+                "filesize": fsize,
+                "type": ext,
+                "host": host,
+            }
 
         if url_type in ("realdebrid", "unknown") and self.rd:
             # RD: check and enrich
@@ -118,7 +130,14 @@ class DownloadManager:
             fsize = int(info.get("filesize") or 0) if info.get("filesize") else 0
             ext = cat.ext_from_name(fname or "")
             ok = bool(info.get("ok"))
-            return {"ok": ok, "link": link, "filename": fname or utools.guess_name_from_link(link), "filesize": fsize, "type": ext, "host": host}
+            return {
+                "ok": ok,
+                "link": link,
+                "filename": fname or utools.guess_name_from_link(link),
+                "filesize": fsize,
+                "type": ext,
+                "host": host,
+            }
 
         # Fallback unknown
         return {"ok": False, "link": link, "error": "Unsupported link type"}

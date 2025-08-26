@@ -1,5 +1,5 @@
-from url_utils import URLClassifier
 from rd_client import RealDebridClient
+from url_utils import URLClassifier
 
 
 def test_classifier_direct():
@@ -11,4 +11,3 @@ def test_parse_cd_filename_basic():
     val = 'attachment; filename="test.bin"'
     name = RealDebridClient._parse_cd_filename(val)
     assert name == "test.bin"
-

@@ -1,12 +1,13 @@
 import os
 import random
+import shutil
 import string
 import subprocess
 import time
 from typing import Any, Dict, List, Optional
 
 import requests
-import shutil
+
 try:
     # Optional: read configured aria2 path
     from config import load_config
@@ -16,11 +17,17 @@ except Exception:
 
 def _rand_secret(n: int = 16) -> str:
     alphabet = string.ascii_letters + string.digits
-    return ''.join(random.choice(alphabet) for _ in range(n))
+    return "".join(random.choice(alphabet) for _ in range(n))
 
 
 class Aria2Client:
-    def __init__(self, outdir: str, port: int = 6800, secret: Optional[str] = None, program: Optional[str] = None):
+    def __init__(
+        self,
+        outdir: str,
+        port: int = 6800,
+        secret: Optional[str] = None,
+        program: Optional[str] = None,
+    ):
         self.port = port
         self.secret = secret or _rand_secret(20)
         self.outdir = outdir
@@ -46,7 +53,9 @@ class Aria2Client:
         # Check aria2c availability
         prog_ok = os.path.isabs(self.aria2_prog) and os.path.exists(self.aria2_prog)
         if not prog_ok and not shutil.which(self.aria2_prog):
-            raise FileNotFoundError("aria2c not found. Install aria2 or set 'aria2_path' in settings.")
+            raise FileNotFoundError(
+                "aria2c not found. Install aria2 or set 'aria2_path' in settings."
+            )
         args = [
             self.aria2_prog,
             f"--rpc-listen-port={self.port}",
@@ -130,14 +139,14 @@ class Aria2Client:
                 r = self._sess.post(self._url, json=payload, timeout=self._timeout)
                 # Retry on transient HTTP errors
                 if r.status_code in (502, 503, 504):
-                    time.sleep(0.2 * (2 ** attempt))
+                    time.sleep(0.2 * (2**attempt))
                     continue
                 r.raise_for_status()
                 j = r.json()
                 break
             except Exception as e:
                 last_exc = e
-                time.sleep(0.2 * (2 ** attempt))
+                time.sleep(0.2 * (2**attempt))
         else:
             raise last_exc or RuntimeError("RPC failed")
         if "error" in j:
@@ -149,7 +158,12 @@ class Aria2Client:
         while time.time() - start < timeout:
             try:
                 # Use a short-timeout quick probe to avoid blocking long
-                payload = {"jsonrpc":"2.0","id":1,"method":"aria2.getVersion","params":[f"token:{self.secret}"]}
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "aria2.getVersion",
+                    "params": [f"token:{self.secret}"],
+                }
                 r = self._sess.post(self._url, json=payload, timeout=0.5)
                 r.raise_for_status()
                 _ = r.json()
@@ -166,15 +180,23 @@ class Aria2Client:
         return self._rpc("addUri", [uris, options or {}])
 
     def tellActive(self):
-        keys = ["gid","status","totalLength","completedLength","downloadSpeed","files","bittorrent"]
+        keys = [
+            "gid",
+            "status",
+            "totalLength",
+            "completedLength",
+            "downloadSpeed",
+            "files",
+            "bittorrent",
+        ]
         return self._rpc("tellActive", [keys])
 
     def tellStopped(self, offset: int = 0, num: int = 1000):
-        keys = ["gid","status","totalLength","completedLength","downloadSpeed","files"]
+        keys = ["gid", "status", "totalLength", "completedLength", "downloadSpeed", "files"]
         return self._rpc("tellStopped", [offset, num, keys])
 
     def tellWaiting(self, offset: int = 0, num: int = 1000):
-        keys = ["gid","status","totalLength","completedLength","downloadSpeed","files"]
+        keys = ["gid", "status", "totalLength", "completedLength", "downloadSpeed", "files"]
         return self._rpc("tellWaiting", [offset, num, keys])
 
     def getGlobalStat(self):
@@ -223,7 +245,7 @@ class Aria2Client:
         except Exception:
             waiting = []
         gids = []
-        for it in (active + waiting):
+        for it in active + waiting:
             gid = it.get("gid")
             if gid:
                 gids.append(str(gid))

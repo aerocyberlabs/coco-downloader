@@ -21,4 +21,3 @@ class FileProgress:
     speed: int
     eta: int
     status: str
-
