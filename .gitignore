@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+installer-output/
+*.egg-info/
+pip-wheel-metadata/
+
+# Coverage/Reports
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Local config/secrets (none by default)
+.env
+
