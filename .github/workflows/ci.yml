@@ -20,5 +20,5 @@ jobs:
       - name: Lint
         run: |
           ruff --version
-          ruff .
+          ruff check .
           black --check .
