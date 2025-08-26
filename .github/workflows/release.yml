@@ -124,7 +124,12 @@ jobs:
             $env:WINDOWS_CERT_PFX_PATH = $pfx
             if (-not $env:WINDOWS_TIMESTAMP_URL) { $env:WINDOWS_TIMESTAMP_URL = 'https://timestamp.digicert.com' }
           }
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\iscc.exe" /Qp installer.iss
+          $iscc = Join-Path "${env:ProgramFiles(x86)}" 'Inno Setup 6\iscc.exe'
+          & $iscc /Qp \
+            "/DMyAppName=$($env:APP_NAME)" \
+            "/DMyAppSlug=$($env:APP_SLUG)" \
+            "/DMyAppVersion=$($env:APP_VERSION)" \
+            installer.iss
 
       # macOS: codesign .app (if signing secrets provided)
       - name: Import Apple signing certificates

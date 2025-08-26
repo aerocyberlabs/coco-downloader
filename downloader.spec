@@ -58,7 +58,7 @@ if sys.platform == 'darwin':
                  icon=None,
                  bundle_identifier=bundle_id,
                  info_plist=None)
-    coll = COLLECT(app,
+    coll = COLLECT(exe,
                    analysis.binaries,
                    analysis.zipfiles,
                    analysis.datas,

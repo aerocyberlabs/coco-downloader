@@ -1,17 +1,28 @@
 ; Inno Setup script for ACL Downloader
 ; Build: run with ISCC on Windows after PyInstaller output exists in dist\acl-downloader
 
-#define MyAppName GetEnv("APP_NAME")
+#ifndef MyAppName
+  #define MyAppName GetEnv("APP_NAME")
+#endif
 #if MyAppName == ""
-#define MyAppName "Coco Downloader"
+  #undef MyAppName
+  #define MyAppName "Coco Downloader"
 #endif
-#define MyAppSlug GetEnv("APP_SLUG")
+
+#ifndef MyAppSlug
+  #define MyAppSlug GetEnv("APP_SLUG")
+#endif
 #if MyAppSlug == ""
-#define MyAppSlug "coco-downloader"
+  #undef MyAppSlug
+  #define MyAppSlug "coco-downloader"
 #endif
-#define MyAppVersion GetEnv("APP_VERSION")
+
+#ifndef MyAppVersion
+  #define MyAppVersion GetEnv("APP_VERSION")
+#endif
 #if MyAppVersion == ""
-#define MyAppVersion "0.1.0"
+  #undef MyAppVersion
+  #define MyAppVersion "0.1.0"
 #endif
 #define MyAppPublisher "ACL"
 #define MyAppExeName "{#MyAppSlug}.exe"
