@@ -594,9 +594,7 @@ class TorrentPreviewWorker(QThread):
                     pass
             if not r.get("ok"):
                 if str(r.get("error")) == "torrent_v2_only_unsupported":
-                    self.log.emit(
-                        "Torrent is BitTorrent v2-only (no v1 infohash). RD requires v1."
-                    )
+                    self.log.emit("Torrent is BitTorrent v2-only (no v1 infohash). RD requires v1.")
                 # If magnet fallback info is present, hint to the user
                 if r.get("magnet"):
                     self.log.emit("Torrent file invalid. Attempted magnet fallback but it failed.")

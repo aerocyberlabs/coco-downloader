@@ -1692,9 +1692,7 @@ class MainWindow(QWidget):
                 self.append_log(
                     f"Torrent {tid}: no ready links yet. RD may still be preparing the files."
                 )
-                self.append_log(
-                    "Tip: You can also start it from RD's Torrents tab."
-                )
+                self.append_log("Tip: You can also start it from RD's Torrents tab.")
                 self.append_log("Then retry once links are ready.")
             else:
                 out_links.extend(ready_links)
@@ -1928,13 +1926,7 @@ class MainWindow(QWidget):
         ]:
             hl = QHBoxLayout()
             hl.addWidget(QLabel(f"{cat_name}:"))
-            le = QLineEdit(
-                str(
-                    folder_map.get(
-                        cat_name, defaults_folders.get(cat_name, cat_name)
-                    )
-                )
-            )
+            le = QLineEdit(str(folder_map.get(cat_name, defaults_folders.get(cat_name, cat_name))))
             hl.addWidget(le)
             folder_edits[cat_name] = le
             vf.addLayout(hl)
@@ -1965,19 +1957,13 @@ class MainWindow(QWidget):
             # Save category maps
             new_map = {}
             for cat_key, le in cat_edits.items():
-                exts = [
-                    p.strip().lstrip(".").lower()
-                    for p in le.text().split(",")
-                    if p.strip()
-                ]
+                exts = [p.strip().lstrip(".").lower() for p in le.text().split(",") if p.strip()]
                 new_map[cat_key] = sorted(set(exts))
             cfg["category_exts"] = new_map
             # Save folder names
             new_folders = {}
             for cat_key, le in folder_edits.items():
-                new_folders[cat_key] = (
-                    le.text().strip() or defaults_folders.get(cat_key, cat_key)
-                )
+                new_folders[cat_key] = le.text().strip() or defaults_folders.get(cat_key, cat_key)
             cfg["category_folders"] = new_folders
             save_config(cfg)
             self.append_log("File type rules updated.")
