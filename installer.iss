@@ -70,13 +70,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppSlug}.exe"; Tasks: d
 
 [Run]
 Filename: "{app}\{#MyAppSlug}.exe"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
-
-; [SignTool]
-; Signing disabled for CI until certs available
-#define CodeSignPfx GetEnv("WINDOWS_CERT_PFX_PATH")
-#define CodeSignPass GetEnv("WINDOWS_CERT_PASSWORD")
-#define TimeStampUrl GetEnv("WINDOWS_TIMESTAMP_URL")
-#if TimeStampUrl == ""
-#define TimeStampUrl "https://timestamp.digicert.com"
-#endif
-ms=cmd /c "signtool sign /fd SHA256 /f \"{#CodeSignPfx}\" /p \"{#CodeSignPass}\" /tr \"{#TimeStampUrl}\" /td SHA256 $f"
