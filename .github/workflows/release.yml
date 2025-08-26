@@ -54,6 +54,34 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Bundle aria2 binary (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          choco install aria2 --no-progress -y
+          $aria = (Get-Command aria2c).Source
+          New-Item -ItemType Directory -Force -Path bin | Out-Null
+          Copy-Item $aria bin\aria2c.exe -Force
+
+      - name: Bundle aria2 binary (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew update
+          brew install aria2 || true
+          mkdir -p bin
+          which aria2c && cp "$(which aria2c)" bin/aria2c || echo "aria2c not found"
+          chmod +x bin/aria2c || true
+
+      - name: Bundle aria2 binary (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y aria2 || true
+          mkdir -p bin
+          command -v aria2c && cp "$(command -v aria2c)" bin/aria2c || echo "aria2c not found"
+
       - name: Prepare macOS env (bundle id/version)
         if: runner.os == 'macOS'
         shell: bash
