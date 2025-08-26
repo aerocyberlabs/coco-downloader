@@ -2,27 +2,27 @@
 ; Build: run with ISCC on Windows after PyInstaller output exists in dist\acl-downloader
 
 #ifndef MyAppName
-  #define MyAppName GetEnv("APP_NAME")
-#endif
-#if MyAppName == ""
-  #undef MyAppName
   #define MyAppName "Coco Downloader"
+  #if GetEnv("APP_NAME") != ""
+    #undef MyAppName
+    #define MyAppName GetEnv("APP_NAME")
+  #endif
 #endif
 
 #ifndef MyAppSlug
-  #define MyAppSlug GetEnv("APP_SLUG")
-#endif
-#if MyAppSlug == ""
-  #undef MyAppSlug
   #define MyAppSlug "coco-downloader"
+  #if GetEnv("APP_SLUG") != ""
+    #undef MyAppSlug
+    #define MyAppSlug GetEnv("APP_SLUG")
+  #endif
 #endif
 
 #ifndef MyAppVersion
-  #define MyAppVersion GetEnv("APP_VERSION")
-#endif
-#if MyAppVersion == ""
-  #undef MyAppVersion
   #define MyAppVersion "0.1.0"
+  #if GetEnv("APP_VERSION") != ""
+    #undef MyAppVersion
+    #define MyAppVersion GetEnv("APP_VERSION")
+  #endif
 #endif
 #define MyAppPublisher "ACL"
 #define MyAppExeName "{#MyAppSlug}.exe"
