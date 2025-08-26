@@ -117,14 +117,14 @@ jobs:
 
       # macOS: codesign .app (if signing secrets provided)
       - name: Import Apple signing certificates
-        if: runner.os == 'macOS' && secrets.MACOS_CERT_P12_BASE64 != ''
+        if: ${{ runner.os == 'macOS' && secrets.MACOS_CERT_P12_BASE64 != '' }}
         uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.MACOS_CERT_PASSWORD }}
 
       - name: Codesign app bundle
-        if: runner.os == 'macOS' && secrets.MACOS_CERT_P12_BASE64 != '' && secrets.MACOS_SIGN_IDENTITY != ''
+        if: ${{ runner.os == 'macOS' && secrets.MACOS_CERT_P12_BASE64 != '' && secrets.MACOS_SIGN_IDENTITY != '' }}
         run: |
           APP_PATH="dist/${APP_SLUG}/${APP_NAME}.app"
           echo "Signing $APP_PATH"
@@ -157,7 +157,7 @@ jobs:
           echo "PKG created: $PKG_NAME"
 
       - name: Notarize PKG
-        if: runner.os == 'macOS' && secrets.APPLE_API_KEY_BASE64 != '' && secrets.APPLE_API_KEY_ID != '' && secrets.APPLE_API_ISSUER_ID != ''
+        if: ${{ runner.os == 'macOS' && secrets.APPLE_API_KEY_BASE64 != '' && secrets.APPLE_API_KEY_ID != '' && secrets.APPLE_API_ISSUER_ID != '' }}
         env:
           APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
