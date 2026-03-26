@@ -239,10 +239,16 @@ class PostProcessor {
     final ProcessResult result;
     if (Platform.isWindows) {
       // PowerShell Expand-Archive is available on Windows 10+.
+      // Use -LiteralPath via argument list to avoid command injection.
       result = await Process.run('powershell', [
         '-NoProfile',
         '-Command',
-        'Expand-Archive -Force -LiteralPath "$zipPath" -DestinationPath "$destDir"',
+        'Expand-Archive',
+        '-Force',
+        '-LiteralPath',
+        zipPath,
+        '-DestinationPath',
+        destDir,
       ]);
     } else {
       result = await Process.run('unzip', ['-o', zipPath, '-d', destDir]);
@@ -263,7 +269,9 @@ class PostProcessor {
 
   /// Encrypt [filePath] using AES-CBC with a SHA-256 derived key.
   ///
-  /// Mirrors the Python Fernet-based scheme:
+  /// NOTE: This is NOT compatible with Python's Fernet encryption.
+  /// Files encrypted here cannot be decrypted by the Python app and vice versa.
+  /// Scheme:
   ///   1. Derive a 256-bit key: `SHA-256(password.utf8)`.
   ///   2. Generate a random 128-bit IV.
   ///   3. Encrypt the file bytes with AES-CBC (PKCS7 padding).
@@ -287,6 +295,15 @@ class PostProcessor {
 
     final encPath = '$filePath.enc';
     await File(encPath).writeAsBytes(outBytes, flush: true);
+
+    // Verify the encrypted file was written correctly before deleting original.
+    final encStat = await File(encPath).stat();
+    if (encStat.size != outBytes.length) {
+      throw StateError(
+        'Encrypted file size mismatch: expected ${outBytes.length}, '
+        'got ${encStat.size}. Original file preserved at $filePath.',
+      );
+    }
     await File(filePath).delete();
     return encPath;
   }
