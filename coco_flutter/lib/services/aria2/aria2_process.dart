@@ -137,16 +137,12 @@ class Aria2ProcessService {
       args.add('--input-file=$session');
     }
 
-    // Spawn process.
-    _process = await Process.start(
-      binary,
-      args,
-      mode: ProcessStartMode.detachedWithStdio,
-    );
+    // Spawn process in normal mode so stdio streams are available.
+    _process = await Process.start(binary, args);
 
     // Drain stdio so the process does not block on full pipe buffers.
-    _process!.stdout.drain<List<int>>();
-    _process!.stderr.drain<List<int>>();
+    _process!.stdout.drain();
+    _process!.stderr.drain();
 
     // Watch for unexpected exits and clean up internal state.
     _process!.exitCode.then((_) {
