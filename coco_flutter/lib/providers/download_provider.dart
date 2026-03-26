@@ -451,16 +451,16 @@ class DownloadNotifier extends StateNotifier<DownloadState> {
 
       // Check whether all tasks are done.
       final allDone = active.isEmpty && waiting.isEmpty;
+      final wasRunning = state.isRunning;
 
       state = state.copyWith(
         activeCnt: active.length,
         queuedCnt: waiting.length,
         overallPercent: overallPct,
         globalEta: globalEta,
-        isRunning: !allDone || state.isRunning && !allDone,
       );
 
-      if (allDone && state.isRunning) {
+      if (allDone && wasRunning) {
         _ref.read(logProvider.notifier).log('All downloads complete.');
         _pollTimer?.cancel();
         _pollTimer = null;

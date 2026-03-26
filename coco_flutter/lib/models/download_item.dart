@@ -16,8 +16,11 @@ enum DownloadStatus {
         return DownloadStatus.active;
       case 'paused':
         return DownloadStatus.paused;
+      case 'complete':
       case 'completed':
         return DownloadStatus.completed;
+      case 'waiting':
+        return DownloadStatus.queued;
       case 'error':
         return DownloadStatus.error;
       case 'removed':

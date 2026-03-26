@@ -166,6 +166,6 @@ class ClipboardNotifier extends StateNotifier<ClipboardState> {
 final clipboardProvider =
     StateNotifierProvider<ClipboardNotifier, ClipboardState>((ref) {
   final notifier = ClipboardNotifier();
-  ref.onDispose(notifier.dispose);
+  // StateNotifier.dispose() is called automatically by Riverpod; no ref.onDispose needed.
   return notifier;
 });

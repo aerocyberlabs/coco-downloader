@@ -187,6 +187,6 @@ class SchedulerNotifier extends StateNotifier<SchedulerState> {
 final schedulerProvider =
     StateNotifierProvider<SchedulerNotifier, SchedulerState>((ref) {
   final notifier = SchedulerNotifier();
-  ref.onDispose(notifier.dispose);
+  // StateNotifier.dispose() is called automatically by Riverpod; no ref.onDispose needed.
   return notifier;
 });
