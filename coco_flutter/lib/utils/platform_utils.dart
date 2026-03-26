@@ -25,7 +25,7 @@ Future<void> openFolder(String path) async {
     await Process.run('open', [path]);
   } else if (Platform.isWindows) {
     // /select highlights the item rather than just opening the parent folder.
-    await Process.run('explorer.exe', ['/select,', path]);
+    await Process.run('explorer.exe', ['/select,$path']);
   }
 }
 

@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 import 'history_entry.dart';
 
 /// Application configuration model.
@@ -577,7 +579,19 @@ class AppConfig {
         other.aria2Path == aria2Path &&
         other.tableHeaderState == tableHeaderState &&
         other.tableSortCol == tableSortCol &&
-        other.tableSortOrder == tableSortOrder;
+        other.tableSortOrder == tableSortOrder &&
+        const DeepCollectionEquality()
+            .equals(other.excludeExt, excludeExt) &&
+        const DeepCollectionEquality()
+            .equals(other.categoryExts, categoryExts) &&
+        const DeepCollectionEquality()
+            .equals(other.categoryFolders, categoryFolders) &&
+        const DeepCollectionEquality().equals(other.headers, headers) &&
+        const DeepCollectionEquality()
+            .equals(other.userAgents, userAgents) &&
+        const DeepCollectionEquality().equals(other.history, history) &&
+        const DeepCollectionEquality()
+            .equals(other.hashIndex, hashIndex);
   }
 
   @override
@@ -620,6 +634,13 @@ class AppConfig {
         tableHeaderState,
         tableSortCol,
         tableSortOrder,
+        const DeepCollectionEquality().hash(excludeExt),
+        const DeepCollectionEquality().hash(categoryExts),
+        const DeepCollectionEquality().hash(categoryFolders),
+        const DeepCollectionEquality().hash(headers),
+        const DeepCollectionEquality().hash(userAgents),
+        const DeepCollectionEquality().hash(history),
+        const DeepCollectionEquality().hash(hashIndex),
       ]);
 
   @override

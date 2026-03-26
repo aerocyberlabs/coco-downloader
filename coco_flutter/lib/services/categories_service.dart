@@ -118,7 +118,6 @@ Map<String, List<String>> defaultCategoryExts() {
       'bz2',
       'xz',
       'iso',
-      'dmg',
       'cab',
       'lz',
       'zst',
@@ -214,12 +213,12 @@ String? subfolderForCategory(
 Map<String, List<String>> _mergeExts(Map<String, List<String>>? customExts) {
   final base = {
     for (final e in defaultCategoryExts().entries)
-      e.key: e.value.map((x) => x.toLowerCase().replaceFirst('.', '')).toList(),
+      e.key: e.value.map((x) => x.toLowerCase().replaceFirst(RegExp(r'^\.'), '')).toList(),
   };
   if (customExts == null) return base;
   for (final entry in customExts.entries) {
     base[entry.key] =
-        entry.value.map((x) => x.toLowerCase().replaceFirst('.', '')).toList();
+        entry.value.map((x) => x.toLowerCase().replaceFirst(RegExp(r'^\.'), '')).toList();
   }
   return base;
 }

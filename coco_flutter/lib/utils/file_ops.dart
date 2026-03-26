@@ -22,15 +22,15 @@ import 'package:path/path.dart' as p;
 /// // -> 'movie (1).mkv'    when 'movie.mkv' already exists.
 /// ```
 String uniqueName(String dir, String name) {
+  // Check original name first.
+  if (!File(p.join(dir, name)).existsSync()) return name;
+
   final ext = p.extension(name);
   final base = p.basenameWithoutExtension(name);
   int attempt = 1;
   while (true) {
     final candidate = '$base ($attempt)$ext';
-    final full = p.join(dir, candidate);
-    if (!File(full).existsSync()) {
-      return candidate;
-    }
+    if (!File(p.join(dir, candidate)).existsSync()) return candidate;
     attempt++;
   }
 }
