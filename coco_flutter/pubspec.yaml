@@ -1,0 +1,59 @@
+name: coco_downloader
+description: Cross-platform download manager with Real-Debrid integration
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Code generation for models
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Networking
+  dio: ^5.8.0
+
+  # Storage
+  shared_preferences: ^2.5.3
+  path_provider: any
+  flutter_secure_storage: ^9.2.4
+
+  # Desktop-specific
+  window_manager: ^0.4.3
+  file_picker: ^8.3.7
+  desktop_drop: ^0.5.0
+  # system_tray: deferred - version conflicts with riverpod_generator
+  url_launcher: ^6.3.1
+
+  # UI
+  data_table_2: ^2.5.16
+  cupertino_icons: ^1.0.8
+
+  # Utilities
+  collection: ^1.19.1
+  path: ^1.9.1
+  uuid: any
+  html: ^0.15.5
+  crypto: ^3.0.6
+  encrypt: ^5.0.3
+  archive: ^4.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.15
+  freezed: ^3.0.0
+  json_serializable: ^6.9.4
+  riverpod_generator: ^2.6.3
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
