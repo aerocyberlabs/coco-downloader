@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/config_provider.dart';
 
 // Default categories matching the Python app.
-const _defaultCategories = ['Video', 'Audio', 'Images', 'Documents', 'Archives', 'Software'];
+const _defaultCategories = ['Video', 'Audio', 'Image', 'Document', 'Compressed', 'Program', 'Other'];
 
 class FileTypesDialog extends ConsumerStatefulWidget {
   const FileTypesDialog({super.key});

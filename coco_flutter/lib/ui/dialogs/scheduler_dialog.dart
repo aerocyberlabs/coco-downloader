@@ -36,7 +36,7 @@ class _SchedulerDialogState extends ConsumerState<SchedulerDialog> {
 
   bool _validTime(String s) {
     if (s.isEmpty) return true;
-    final re = RegExp(r'^\d{2}:\d{2}$');
+    final re = RegExp(r'^([01]\d|2[0-3]):[0-5]\d$');
     return re.hasMatch(s);
   }
 

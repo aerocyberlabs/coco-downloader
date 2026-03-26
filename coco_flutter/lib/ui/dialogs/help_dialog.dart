@@ -137,14 +137,14 @@ class _HelpDialogWidgetState extends State<HelpDialogWidget>
       _HelpSection(
         bulleted: true,
         items: [
-          const Text('\u2022 Connections (-x): max connections per download'),
-          const Text('\u2022 Splits (-s): segments per file'),
-          const Text('\u2022 Concurrency (-j): concurrent downloads'),
-          const Text('\u2022 Dark mode and Open folder when done'),
-          const Text('\u2022 Network: HTTP/HTTPS proxy, custom headers'),
-          const Text('\u2022 Scheduler: quiet hours, auto-extract ZIP'),
-          const Text('\u2022 File Rules: excluded extensions, category mappings'),
-          const Text('\u2022 Advanced: power-aware throttling, user-agent rotation, auto-tune'),
+          const Text('Connections (-x): max connections per download'),
+          const Text('Splits (-s): segments per file'),
+          const Text('Concurrency (-j): concurrent downloads'),
+          const Text('Dark mode and Open folder when done'),
+          const Text('Network: HTTP/HTTPS proxy, custom headers'),
+          const Text('Scheduler: quiet hours, auto-extract ZIP'),
+          const Text('File Rules: excluded extensions, category mappings'),
+          const Text('Advanced: power-aware throttling, user-agent rotation, auto-tune'),
         ],
       ),
     ]);

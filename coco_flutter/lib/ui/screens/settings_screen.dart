@@ -390,10 +390,11 @@ class _NetworkTabState extends ConsumerState<_NetworkTab> {
 const _defaultCategories = [
   'Video',
   'Audio',
-  'Images',
-  'Documents',
-  'Archives',
-  'Software',
+  'Image',
+  'Document',
+  'Compressed',
+  'Program',
+  'Other',
 ];
 
 class _FileRulesTab extends ConsumerStatefulWidget {
