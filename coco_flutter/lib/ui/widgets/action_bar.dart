@@ -321,12 +321,12 @@ class _ActionBarState extends ConsumerState<ActionBar> {
                     onPressed:
                         (!dl.isRunning && hasSelected) ? _startDownload : null,
                     icon: dl.isRunning
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           )
                         : const Icon(Icons.download, size: 20),

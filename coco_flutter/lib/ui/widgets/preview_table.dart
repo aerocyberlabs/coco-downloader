@@ -83,13 +83,13 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
     final cs = Theme.of(context).colorScheme;
     switch (status) {
       case DownloadStatus.active:
-        return Colors.green.shade600;
+        return cs.tertiary;
       case DownloadStatus.completed:
         return cs.primary;
       case DownloadStatus.error:
         return cs.error;
       case DownloadStatus.paused:
-        return Colors.orange.shade700;
+        return cs.secondary;
       case DownloadStatus.queued:
         return cs.onSurfaceVariant;
       case DownloadStatus.removed:
@@ -276,11 +276,6 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
 
     return DataRow2(
       color: rowColor != null ? WidgetStateProperty.all(rowColor) : null,
-      onSecondaryTap: () {
-        // Right-click: get position via a listener wrapping the row is complex;
-        // instead we use a GestureDetector trick via onSecondaryTapDown stored
-        // in state. For simplicity, show context menu at the pointer position.
-      },
       onSecondaryTapDown: (details) {
         _showContextMenu(context, details.globalPosition, item);
       },
@@ -343,7 +338,7 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
                 : '—',
             style: TextStyle(
               fontSize: 12,
-              color: item.percent > 0 ? Colors.green.shade700 : null,
+              color: item.percent > 0 ? Theme.of(context).colorScheme.tertiary : null,
               fontWeight:
                   item.percent > 0 ? FontWeight.w600 : FontWeight.normal,
             ),

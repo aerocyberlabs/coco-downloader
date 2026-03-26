@@ -81,12 +81,7 @@ class _InputZoneState extends ConsumerState<InputZone> {
     final lines = <String>[];
 
     for (final file in details.files) {
-      final path = file.path;
-      if (path.toLowerCase().endsWith('.torrent')) {
-        lines.add(path);
-      } else {
-        lines.add(path);
-      }
+      lines.add(file.path);
     }
 
     // Also try treating the text as a URL.
@@ -181,12 +176,16 @@ class _InputZoneState extends ConsumerState<InputZone> {
                           icon: const Icon(Icons.clear, size: 18),
                           onPressed: () {
                             _singleController.clear();
+                            setState(() {});
                             _doPreview();
                           },
                         )
                       : null,
                 ),
-                onChanged: (_) => _schedulePreview(),
+                onChanged: (_) {
+                  setState(() {});
+                  _schedulePreview();
+                },
                 onSubmitted: (_) {
                   _debounce?.cancel();
                   _doPreview();
