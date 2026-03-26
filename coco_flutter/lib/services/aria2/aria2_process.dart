@@ -141,15 +141,16 @@ class Aria2ProcessService {
     _process = await Process.start(binary, args);
 
     // Drain stdio so the process does not block on full pipe buffers.
-    _process!.stdout.drain();
-    _process!.stderr.drain();
+    _process!.stdout.listen((_) {}, onError: (_) {});
+    _process!.stderr.listen((_) {}, onError: (_) {});
 
     // Watch for unexpected exits and clean up internal state.
+    // ignore: unawaited_futures
     _process!.exitCode.then((_) {
       _process = null;
       _client?.dispose();
       _client = null;
-    });
+    }).catchError((_) {});
 
     // Build the RPC client.
     final client = Aria2RpcClient(port: port, secret: secret);
