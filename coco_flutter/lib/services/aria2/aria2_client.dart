@@ -6,6 +6,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
@@ -68,9 +69,10 @@ class Aria2RpcClient {
 
     for (int attempt = 0; attempt < _maxRetries; attempt++) {
       try {
-        final response = await _dio.post<Map<String, dynamic>>(
+        final response = await _dio.post<dynamic>(
           _url,
           data: payload,
+          options: Options(responseType: ResponseType.json),
         );
 
         final statusCode = response.statusCode ?? 0;
@@ -84,10 +86,17 @@ class Aria2RpcClient {
           continue;
         }
 
-        final body = response.data;
-        if (body == null) {
-          throw StateError('aria2 RPC returned empty response for $method');
+        dynamic raw = response.data;
+        // If Dio returned a String, parse it as JSON.
+        if (raw is String) {
+          raw = jsonDecode(raw);
         }
+
+        if (raw is! Map<String, dynamic>) {
+          throw StateError('aria2 RPC unexpected response type for $method: ${raw.runtimeType}');
+        }
+
+        final body = raw;
 
         if (body.containsKey('error')) {
           final err = body['error'];
