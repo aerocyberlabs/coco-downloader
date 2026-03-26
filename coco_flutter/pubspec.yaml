@@ -34,7 +34,6 @@ dependencies:
   url_launcher: ^6.3.1
 
   # UI
-  data_table_2: ^2.5.16
   cupertino_icons: ^1.0.8
 
   # Utilities

@@ -1,16 +1,8 @@
-/// PreviewTable — scrollable download-queue table using DataTable2.
+/// PreviewTable — scrollable download-queue table.
 ///
 /// Columns: Select (checkbox), Name, Size, Type, Source, %, Speed, ETA, Status
-///
-/// Features:
-///   - Rows sourced from [previewProvider.filteredItems].
-///   - Checkbox selection per row (delegates to [PreviewNotifier.toggleSelection]).
-///   - Color-coded Status column.
-///   - Right-click context menu: Pause, Resume, Cancel, Copy URL, Remove.
-///   - Column header taps cycle sort order.
 library;
 
-import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,10 +12,6 @@ import '../../providers/download_provider.dart';
 import '../../providers/preview_provider.dart';
 import '../../utils/format.dart';
 
-// ---------------------------------------------------------------------------
-// PreviewTable
-// ---------------------------------------------------------------------------
-
 class PreviewTable extends ConsumerStatefulWidget {
   const PreviewTable({super.key});
 
@@ -32,12 +20,8 @@ class PreviewTable extends ConsumerStatefulWidget {
 }
 
 class _PreviewTableState extends ConsumerState<PreviewTable> {
-  int _sortColumnIndex = 1; // Name column
+  int _sortColumnIndex = 1;
   bool _sortAscending = true;
-
-  // -------------------------------------------------------------------------
-  // Sorting helpers
-  // -------------------------------------------------------------------------
 
   List<DownloadItem> _sorted(List<DownloadItem> items) {
     final list = List<DownloadItem>.from(items);
@@ -59,7 +43,7 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
         case 7:
           cmp = a.eta.compareTo(b.eta);
         case 8:
-          cmp = a.status.name.compareTo(b.status.name);
+          cmp = a.status.index.compareTo(b.status.index);
         default:
           cmp = 0;
       }
@@ -75,10 +59,6 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Status colour
-  // -------------------------------------------------------------------------
-
   Color _statusColor(DownloadStatus status, BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     switch (status) {
@@ -93,15 +73,11 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
       case DownloadStatus.queued:
         return cs.onSurfaceVariant;
       case DownloadStatus.removed:
-        return cs.onSurfaceVariant.withAlpha(120);
+        return cs.onSurfaceVariant;
       case DownloadStatus.excluded:
         return cs.onSurfaceVariant.withAlpha(120);
     }
   }
-
-  // -------------------------------------------------------------------------
-  // Context menu
-  // -------------------------------------------------------------------------
 
   void _showContextMenu(
     BuildContext context,
@@ -114,10 +90,7 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
     showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy,
-        position.dx + 1,
-        position.dy + 1,
+        position.dx, position.dy, position.dx + 1, position.dy + 1,
       ),
       items: [
         const PopupMenuItem(value: 'pause', child: Text('Pause')),
@@ -126,10 +99,7 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
         const PopupMenuDivider(),
         const PopupMenuItem(value: 'copy', child: Text('Copy URL')),
         const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: 'remove',
-          child: Text('Remove from list'),
-        ),
+        const PopupMenuItem(value: 'remove', child: Text('Remove from list')),
       ],
     ).then((value) {
       if (value == null) return;
@@ -148,15 +118,12 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Build
-  // -------------------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
     final previewState = ref.watch(previewProvider);
     final items = _sorted(previewState.filteredItems);
     final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     if (items.isEmpty) {
       return Center(
@@ -167,12 +134,9 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
             const SizedBox(height: 8),
             Text(
               previewState.isLoading
-                  ? 'Loading…'
-                  : 'No files — paste a link above to get started.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: cs.onSurfaceVariant),
+                  ? 'Loading...'
+                  : 'No files \u2014 paste a link above to get started.',
+              style: textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             if (previewState.isLoading) ...[
               const SizedBox(height: 12),
@@ -187,100 +151,89 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
       );
     }
 
-    return DataTable2(
-      columnSpacing: 8,
-      horizontalMargin: 8,
-      minWidth: 700,
-      sortColumnIndex: _sortColumnIndex,
-      sortAscending: _sortAscending,
-      headingRowColor: WidgetStateProperty.all(cs.surfaceContainerHighest),
-      columns: [
-        // 0 — Select (checkbox header = select all / deselect all)
-        DataColumn2(
-          label: Checkbox(
-            tristate: true,
-            value: _allCheckedState(items),
-            onChanged: (_) => _toggleAll(items),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: SingleChildScrollView(
+              child: DataTable(
+                columnSpacing: 12,
+                horizontalMargin: 8,
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
+                headingRowColor: WidgetStateProperty.all(
+                  cs.surfaceContainerHighest,
+                ),
+                headingRowHeight: 40,
+                dataRowMinHeight: 36,
+                dataRowMaxHeight: 44,
+                columns: [
+                  DataColumn(
+                    label: Checkbox(
+                      tristate: true,
+                      value: _allCheckedState(items),
+                      onChanged: (_) => _toggleAll(items),
+                    ),
+                  ),
+                  DataColumn(
+                    label: const Text('Name'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('Size'),
+                    numeric: true,
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('Type'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('Source'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('%'),
+                    numeric: true,
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('Speed'),
+                    numeric: true,
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('ETA'),
+                    onSort: _onSort,
+                  ),
+                  DataColumn(
+                    label: const Text('Status'),
+                    onSort: _onSort,
+                  ),
+                ],
+                rows: items.map((item) => _buildRow(context, item)).toList(),
+              ),
+            ),
           ),
-          fixedWidth: 48,
-        ),
-        // 1 — Name
-        DataColumn2(
-          label: const Text('Name', overflow: TextOverflow.ellipsis),
-          size: ColumnSize.L,
-          onSort: _onSort,
-        ),
-        // 2 — Size
-        DataColumn2(
-          label: const Text('Size'),
-          fixedWidth: 90,
-          numeric: true,
-          onSort: _onSort,
-        ),
-        // 3 — Type
-        DataColumn2(
-          label: const Text('Type'),
-          fixedWidth: 90,
-          onSort: _onSort,
-        ),
-        // 4 — Source
-        DataColumn2(
-          label: const Text('Source'),
-          fixedWidth: 110,
-          onSort: _onSort,
-        ),
-        // 5 — %
-        DataColumn2(
-          label: const Text('%'),
-          fixedWidth: 52,
-          numeric: true,
-          onSort: _onSort,
-        ),
-        // 6 — Speed
-        DataColumn2(
-          label: const Text('Speed'),
-          fixedWidth: 90,
-          numeric: true,
-          onSort: _onSort,
-        ),
-        // 7 — ETA
-        DataColumn2(
-          label: const Text('ETA'),
-          fixedWidth: 72,
-          onSort: _onSort,
-        ),
-        // 8 — Status
-        DataColumn2(
-          label: const Text('Status'),
-          fixedWidth: 88,
-          onSort: _onSort,
-        ),
-      ],
-      rows: items.map((item) => _buildRow(context, item)).toList(),
+        );
+      },
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Row builder
-  // -------------------------------------------------------------------------
-
-  DataRow2 _buildRow(BuildContext context, DownloadItem item) {
+  DataRow _buildRow(BuildContext context, DownloadItem item) {
     final cs = Theme.of(context).colorScheme;
     final statusColor = _statusColor(item.status, context);
     final isExcluded = item.excluded;
+    final bodySmall = Theme.of(context).textTheme.bodySmall;
 
-    Color? rowColor;
-    if (isExcluded) {
-      rowColor = cs.surfaceContainerHighest.withAlpha(60);
-    }
-
-    return DataRow2(
-      color: rowColor != null ? WidgetStateProperty.all(rowColor) : null,
-      onSecondaryTapDown: (details) {
-        _showContextMenu(context, details.globalPosition, item);
-      },
+    return DataRow(
+      color: isExcluded
+          ? WidgetStateProperty.all(cs.surfaceContainerHighest.withAlpha(60))
+          : null,
       cells: [
-        // 0 — Checkbox
+        // 0 - Checkbox
         DataCell(
           Checkbox(
             value: item.selected,
@@ -291,94 +244,79 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
                     .toggleSelection(item.id),
           ),
         ),
-
-        // 1 — Name
+        // 1 - Name
         DataCell(
-          Tooltip(
-            message: item.name,
-            child: Text(
-              item.name,
-              overflow: TextOverflow.ellipsis,
-              style: isExcluded
-                  ? TextStyle(
-                      color: cs.onSurface.withAlpha(100),
-                      decoration: TextDecoration.lineThrough,
-                    )
-                  : null,
+          GestureDetector(
+            onSecondaryTapDown: (details) =>
+                _showContextMenu(context, details.globalPosition, item),
+            child: Tooltip(
+              message: item.name,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 280),
+                child: Text(
+                  item.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: isExcluded
+                      ? TextStyle(
+                          color: cs.onSurface.withAlpha(100),
+                          decoration: TextDecoration.lineThrough,
+                        )
+                      : null,
+                ),
+              ),
             ),
           ),
         ),
-
-        // 2 — Size
-        DataCell(
-          Text(
-            item.size > 0 ? humanSize(item.size) : '—',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ),
-
-        // 3 — Type
-        DataCell(Text(item.category, style: Theme.of(context).textTheme.bodySmall)),
-
-        // 4 — Source
-        DataCell(
-          Text(
-            item.source.isEmpty ? '—' : item.source,
+        // 2 - Size
+        DataCell(Text(
+          item.size > 0 ? humanSize(item.size) : '\u2014',
+          style: bodySmall,
+        )),
+        // 3 - Type
+        DataCell(Text(item.category, style: bodySmall)),
+        // 4 - Source
+        DataCell(ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 110),
+          child: Text(
+            item.source.isEmpty ? '\u2014' : item.source,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall,
+            style: bodySmall,
           ),
-        ),
-
-        // 5 — %
-        DataCell(
-          Text(
-            item.status == DownloadStatus.active ||
-                    item.status == DownloadStatus.completed
-                ? '${item.percent}%'
-                : '—',
-            style: TextStyle(
-              fontSize: 12,
-              color: item.percent > 0 ? Theme.of(context).colorScheme.tertiary : null,
-              fontWeight:
-                  item.percent > 0 ? FontWeight.w600 : FontWeight.normal,
-            ),
+        )),
+        // 5 - %
+        DataCell(Text(
+          item.status == DownloadStatus.active ||
+                  item.status == DownloadStatus.completed
+              ? '${item.percent}%'
+              : '\u2014',
+          style: TextStyle(
+            fontSize: 12,
+            color: item.percent > 0 ? cs.tertiary : null,
+            fontWeight: item.percent > 0 ? FontWeight.w600 : FontWeight.normal,
           ),
-        ),
-
-        // 6 — Speed
-        DataCell(
-          Text(
-            item.speed > 0 ? formatSpeed(item.speed) : '—',
-            style: Theme.of(context).textTheme.bodySmall,
+        )),
+        // 6 - Speed
+        DataCell(Text(
+          item.speed > 0 ? formatSpeed(item.speed) : '\u2014',
+          style: bodySmall,
+        )),
+        // 7 - ETA
+        DataCell(Text(
+          item.eta >= 0 ? formatEta(item.eta) : '\u2014',
+          style: bodySmall,
+        )),
+        // 8 - Status
+        DataCell(Text(
+          item.status.toJson(),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: statusColor,
           ),
-        ),
-
-        // 7 — ETA
-        DataCell(
-          Text(
-            item.eta >= 0 ? formatEta(item.eta) : '—',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ),
-
-        // 8 — Status
-        DataCell(
-          Text(
-            item.status.toJson(),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
-            ),
-          ),
-        ),
+        )),
       ],
     );
   }
-
-  // -------------------------------------------------------------------------
-  // Select-all header helpers
-  // -------------------------------------------------------------------------
 
   bool? _allCheckedState(List<DownloadItem> items) {
     final selectable = items.where((i) => !i.excluded).toList();
@@ -386,13 +324,14 @@ class _PreviewTableState extends ConsumerState<PreviewTable> {
     final selectedCount = selectable.where((i) => i.selected).length;
     if (selectedCount == 0) return false;
     if (selectedCount == selectable.length) return true;
-    return null; // indeterminate
+    return null;
   }
 
   void _toggleAll(List<DownloadItem> items) {
     final notifier = ref.read(previewProvider.notifier);
-    final state = _allCheckedState(items);
-    if (state == true) {
+    final selectable = items.where((i) => !i.excluded);
+    final allSelected = selectable.every((i) => i.selected);
+    if (allSelected) {
       notifier.clearSelection();
     } else {
       notifier.selectAll();
