@@ -45,9 +45,9 @@ class ConfigService {
   // are guarded by [keyringAvailable].
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
     // Use the most appropriate backend per platform.
-    linuxOptions: LinuxOptions(),
-    macOsOptions: MacOsOptions(),
-    windowsOptions: WindowsOptions(),
+    lOptions: LinuxOptions.defaultOptions,
+    mOptions: MacOsOptions.defaultOptions,
+    wOptions: WindowsOptions.defaultOptions,
   );
 
   // ---------------------------------------------------------------------------
