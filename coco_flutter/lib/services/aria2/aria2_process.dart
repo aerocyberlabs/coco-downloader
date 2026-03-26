@@ -7,6 +7,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -141,13 +142,21 @@ class Aria2ProcessService {
     // Spawn process in normal mode so stdio streams are available.
     _process = await Process.start(binary, args);
 
-    // Drain stdio so the process does not block on full pipe buffers.
+    // Capture stderr for diagnostics; drain stdout.
     _process!.stdout.listen((_) {}, onError: (_) {});
-    _process!.stderr.listen((_) {}, onError: (_) {});
+    final stderrBuf = StringBuffer();
+    _process!.stderr.transform(const SystemEncoding().decoder).listen(
+      (data) => stderrBuf.write(data),
+      onError: (_) {},
+    );
 
     // Watch for unexpected exits and clean up internal state.
     // ignore: unawaited_futures
-    _process!.exitCode.then((_) {
+    _process!.exitCode.then((code) {
+      if (code != 0) {
+        // ignore: avoid_print
+        print('[aria2c] exited with code $code: $stderrBuf');
+      }
       _process = null;
       _client?.dispose();
       _client = null;
@@ -245,8 +254,13 @@ class Aria2ProcessService {
       }
     }
 
-    // RPC did not become ready in time — let the first real call surface the
-    // error with a meaningful message (mirrors Python behaviour).
+    // Check if the process has already exited.
+    final proc = _process;
+    if (proc == null) {
+      throw StateError('aria2c process exited before RPC became ready');
+    }
+    // ignore: avoid_print
+    print('[aria2c] RPC not ready after $timeout — process still running (pid: ${proc.pid})');
   }
 
   /// Generates a cryptographically-adequate random alphanumeric secret.
