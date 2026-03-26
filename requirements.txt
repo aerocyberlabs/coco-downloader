@@ -1,8 +1,0 @@
-PyQt6
-requests
-keyring
-yt-dlp
-psutil
-cryptography
-mutagen
-beautifulsoup4
