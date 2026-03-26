@@ -107,6 +107,7 @@ class Aria2ProcessService {
       '--summary-interval=1',
       '--console-log-level=warn',
       '--enable-color=false',
+      '--async-dns=false',
       '--dir=$outdir',
     ];
 
