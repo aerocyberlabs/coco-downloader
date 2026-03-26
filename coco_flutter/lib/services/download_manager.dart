@@ -170,7 +170,7 @@ class DownloadManager {
     final ext = extFromName(name);
     if (ext.isEmpty) return false;
     final normalised = excludeExts
-        .map((e) => e.toLowerCase().replaceFirst(RegExp(r'^\\.'), ''))
+        .map((e) => e.toLowerCase().replaceFirst(RegExp(r'^\.'), ''))
         .toSet();
     return normalised.contains(ext.toLowerCase());
   }

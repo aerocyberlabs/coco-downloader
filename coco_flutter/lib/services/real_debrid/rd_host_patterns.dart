@@ -29,6 +29,9 @@ class RdHostPatterns {
   /// When the cache was last successfully populated.
   DateTime? _fetchedAt;
 
+  /// Token used to populate the current cache (invalidate on token change).
+  String? _cachedToken;
+
   final _dio = Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 10),
@@ -47,8 +50,11 @@ class RdHostPatterns {
   /// On network failure the existing cached patterns (if any) are preserved.
   Future<void> refresh(String token) async {
     final now = DateTime.now();
-    if (_fetchedAt != null && now.difference(_fetchedAt!) < _ttl) {
-      // Cache still valid.
+    final tokenChanged = _cachedToken != token;
+    if (!tokenChanged &&
+        _fetchedAt != null &&
+        now.difference(_fetchedAt!) < _ttl) {
+      // Cache still valid for this token.
       return;
     }
 
@@ -76,6 +82,7 @@ class RdHostPatterns {
     _hostPatterns = hostPatterns;
     _folderPatterns = folderPatterns;
     _fetchedAt = now;
+    _cachedToken = token;
   }
 
   /// Returns `true` when [url] matches at least one host or folder pattern.

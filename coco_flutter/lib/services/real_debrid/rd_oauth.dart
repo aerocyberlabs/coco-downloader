@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 /// The public OAuth client ID for Real-Debrid open-source applications.
 ///
 /// Mirrors `PUBLIC_CLIENT_ID` in `rd_oauth.py`.
-const String rdPublicClientId = 'X5GDLENQHZ';
+const String rdPublicClientId = 'X245A4XAIBGVM';
 
 const String _oauthBase = 'https://api.real-debrid.com/oauth/v2';
 
