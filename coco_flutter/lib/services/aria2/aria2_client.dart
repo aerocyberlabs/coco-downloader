@@ -191,7 +191,7 @@ class Aria2RpcClient {
     final params = <dynamic>[gid];
     if (keys != null) params.add(keys);
     final result = await _rpc('tellStatus', params);
-    if (result is Map<String, dynamic>) {
+    if (result is Map) {
       return Aria2Task.fromJson(result);
     }
     throw StateError('Unexpected tellStatus response: $result');
@@ -337,10 +337,16 @@ class Aria2RpcClient {
 
   List<Aria2Task> _parseTaskList(dynamic result) {
     if (result is! List) return [];
-    return result
-        .whereType<Map<String, dynamic>>()
-        .map(Aria2Task.fromJson)
-        .toList();
+    final tasks = <Aria2Task>[];
+    for (final item in result) {
+      if (item is Map<String, dynamic>) {
+        tasks.add(Aria2Task.fromJson(item));
+      } else if (item is Map) {
+        // Dio may return Map<dynamic, dynamic>; cast it.
+        tasks.add(Aria2Task.fromJson(Map<String, dynamic>.from(item)));
+      }
+    }
+    return tasks;
   }
 
   /// Closes the underlying Dio client.  Call this when the [Aria2RpcClient]

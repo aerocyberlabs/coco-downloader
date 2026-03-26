@@ -14,7 +14,7 @@ class Aria2Uri {
     required this.status,
   });
 
-  factory Aria2Uri.fromJson(Map<String, dynamic> json) {
+  factory Aria2Uri.fromJson(Map json) {
     return Aria2Uri(
       uri: json['uri'] as String? ?? '',
       status: json['status'] as String? ?? '',
@@ -43,14 +43,14 @@ class Aria2File {
     required this.uris,
   });
 
-  factory Aria2File.fromJson(Map<String, dynamic> json) {
+  factory Aria2File.fromJson(Map json) {
     final rawUris = json['uris'];
-    final uriList = rawUris is List
-        ? rawUris
-            .whereType<Map<String, dynamic>>()
-            .map(Aria2Uri.fromJson)
-            .toList()
-        : <Aria2Uri>[];
+    final uriList = <Aria2Uri>[];
+    if (rawUris is List) {
+      for (final u in rawUris) {
+        if (u is Map) uriList.add(Aria2Uri.fromJson(u));
+      }
+    }
 
     return Aria2File(
       index: _parseInt(json['index']),
@@ -96,14 +96,14 @@ class Aria2Task {
     this.errorMessage,
   });
 
-  factory Aria2Task.fromJson(Map<String, dynamic> json) {
+  factory Aria2Task.fromJson(Map json) {
     final rawFiles = json['files'];
-    final fileList = rawFiles is List
-        ? rawFiles
-            .whereType<Map<String, dynamic>>()
-            .map(Aria2File.fromJson)
-            .toList()
-        : <Aria2File>[];
+    final fileList = <Aria2File>[];
+    if (rawFiles is List) {
+      for (final f in rawFiles) {
+        if (f is Map) fileList.add(Aria2File.fromJson(f));
+      }
+    }
 
     final rawErrorCode = json['errorCode'];
     final int? errorCode = rawErrorCode != null
@@ -160,7 +160,7 @@ class Aria2GlobalStat {
     required this.numStoppedTotal,
   });
 
-  factory Aria2GlobalStat.fromJson(Map<String, dynamic> json) {
+  factory Aria2GlobalStat.fromJson(Map json) {
     return Aria2GlobalStat(
       downloadSpeed: _parseInt(json['downloadSpeed']),
       uploadSpeed: _parseInt(json['uploadSpeed']),

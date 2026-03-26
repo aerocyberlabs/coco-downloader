@@ -68,9 +68,20 @@ class _InputZoneState extends ConsumerState<InputZone> {
         .split('\n')
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty)
+        .where(_isValidUrl)
         .toList();
 
     ref.read(previewProvider.notifier).fetchPreview(links);
+  }
+
+  /// Basic URL validation -- accepts http(s), magnet, ftp, and rd-torrent URIs.
+  bool _isValidUrl(String text) {
+    if (text.startsWith('magnet:')) return true;
+    if (text.startsWith('rd-torrent:')) return true;
+    final uri = Uri.tryParse(text);
+    if (uri == null) return false;
+    if (!uri.hasScheme || !uri.hasAuthority) return false;
+    return ['http', 'https', 'ftp'].contains(uri.scheme.toLowerCase());
   }
 
   // -------------------------------------------------------------------------
