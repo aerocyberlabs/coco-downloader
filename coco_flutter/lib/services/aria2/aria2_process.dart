@@ -7,7 +7,6 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -65,7 +64,7 @@ class Aria2ProcessService {
   /// within 5 seconds.
   Future<Aria2RpcClient> start({
     required String outdir,
-    int port = 6800,
+    int? port,
     int connections = 16,
     int splits = 16,
     int concurrent = 4,
@@ -88,6 +87,9 @@ class Aria2ProcessService {
       );
     }
 
+    // Find a free port if none specified.
+    final rpcPort = port ?? await _findFreePort();
+
     // Generate a fresh random secret for this session.
     final secret = _randSecret(20);
 
@@ -96,7 +98,7 @@ class Aria2ProcessService {
 
     // Build argument list — mirrors the Python Aria2Client.start() method.
     final args = <String>[
-      '--rpc-listen-port=$port',
+      '--rpc-listen-port=$rpcPort',
       '--enable-rpc=true',
       '--rpc-listen-all=false',
       '--rpc-secure=false',
@@ -163,7 +165,7 @@ class Aria2ProcessService {
     }).catchError((_) {});
 
     // Build the RPC client.
-    final client = Aria2RpcClient(port: port, secret: secret);
+    final client = Aria2RpcClient(port: rpcPort, secret: secret);
     _client = client;
 
     // Wait up to 5 seconds for the RPC endpoint to respond.
@@ -261,6 +263,14 @@ class Aria2ProcessService {
     }
     // ignore: avoid_print
     print('[aria2c] RPC not ready after $timeout — process still running (pid: ${proc.pid})');
+  }
+
+  /// Binds to port 0 to let the OS assign a free port, then closes.
+  static Future<int> _findFreePort() async {
+    final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+    final port = server.port;
+    await server.close();
+    return port;
   }
 
   /// Generates a cryptographically-adequate random alphanumeric secret.
